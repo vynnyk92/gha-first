@@ -1,8 +1,5 @@
 name: Test code
-on: 
-  push:
-    branches:
-    - 'main'
+on: workflow_dispatch
 jobs: 
   test-job:
     runs-on: ubuntu-latest

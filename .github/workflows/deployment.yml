@@ -2,6 +2,10 @@ name: Deploy code
 on:
   pull_request:
     types: [opened]
+    branches:
+      - main
+    paths-ignore:
+      - README*
   workflow_dispatch:
   push:
     branches:

@@ -1,31 +1,38 @@
 name: Deploy code
 on:
-  pull_request:
-    types: [opened, edited]
-    branches:
-      - main
-    paths-ignore:
-      - README*
-  workflow_dispatch:
   push:
     branches:
       - main
 jobs: 
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Output data
-        run: echo "${{toJson(github.event)}}"
       - name: Get code
         uses: actions/checkout@v3
       - name: InstallDependencies
-        run: npm install
+        run: npm ci
+      - name: Lint Code
+        run: npm run lint
       - name: Run Test
-        run: npm test
+        run: npm run test
       - name: Build Project
         run: npm run build
       - name: Deploy
         run: echo "Deploy"
-
-
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:        
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: InstallDependencies
+        run: npm ci
+      - name: Lint Code
+        run: npm run build
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:   
+    - name: Deploy
+      run: echo "Deploying..."
         

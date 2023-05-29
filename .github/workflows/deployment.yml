@@ -1,31 +1,20 @@
 name: Deploy code
-on: [push, workflow_dispatch]
+on:
+  pull_request:
+    types: [opened]
+  workflow_dispatch:
 jobs: 
-  test-job:
+  deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Output data
+        run: echo "${{toJson(github.event)}}"
       - name: Get code
         uses: actions/checkout@v3
-      - name: Install NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
       - name: InstallDependencies
         run: npm install
       - name: Run Test
         run: npm test
-  deploy-job:
-    needs: test-job
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get code
-        uses: actions/checkout@v3
-      - name: Install NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: InstallDependencies
-        run: npm install
       - name: Build Project
         run: npm run build
       - name: Deploy

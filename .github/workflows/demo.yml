@@ -1,38 +1,33 @@
-name: Deploy code
+name: Deploy website
 on:
   push:
     branches:
       - main
-jobs: 
+jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: InstallDependencies
+      - name: Install dependencies
         run: npm ci
-      - name: Lint Code
+      - name: Lint code
         run: npm run lint
-      - name: Run Test
+      - name: Test code
         run: npm run test
-      - name: Build Project
-        run: npm run build
-      - name: Deploy
-        run: echo "Deploy"
   build:
     needs: test
     runs-on: ubuntu-latest
-    steps:        
+    steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: InstallDependencies
+      - name: Install dependencies
         run: npm ci
-      - name: Lint Code
+      - name: Build website
         run: npm run build
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    steps:   
-    - name: Deploy
-      run: echo "Deploying..."
-        
+    steps:
+      - name: Deploy
+        run: echo "Deploying..."

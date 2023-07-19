@@ -19,7 +19,6 @@ jobs:
       - name: Lint code
         run: npm run lint
   test:
-    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Get code
@@ -32,8 +31,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Test code
+        id: TestCode
         run: npm run test
       - name: Upload test report
+        if: ${{steps.TestCode.outcome}} == 'failure'
         uses: actions/upload-artifact@v3
         with:
           name: test-report

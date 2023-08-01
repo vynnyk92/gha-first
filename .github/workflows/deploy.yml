@@ -10,9 +10,12 @@ jobs:
       - name: Get code
         uses: actions/checkout@v3
       - name: Install Dependencies via cache
+        id: install
         uses: ./.github/actions/cached-deps
         with:
           force-install: 'true'
+      - name: Output Info
+        run: echo ${{steps.install.outputs.cache-used}}
       - name: Lint code
         run: npm run lint
   test:

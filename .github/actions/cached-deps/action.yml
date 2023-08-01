@@ -1,5 +1,5 @@
 name: 'Get and Cache Dependencies'
-description: 'Get and Cache Dependencies'`
+description: 'Get and Cache Dependencies'
 runs:
   using: 'composite'
   steps:

@@ -15,7 +15,7 @@ jobs:
         with:
           force-install: 'true'
       - name: Output Info
-        run: echo ${{steps.install.outputs.cache-used}}
+        run: echo "${{steps.install.outputs.cache-used}}"
       - name: Lint code
         run: npm run lint
   test:

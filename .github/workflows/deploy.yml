@@ -11,6 +11,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Dependencies via cache
         uses: ./.github/actions/cached-deps
+        with:
+          force-install: 'true'
       - name: Lint code
         run: npm run lint
   test:

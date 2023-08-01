@@ -1,4 +1,4 @@
-name: Deploy website
+name: Deployment
 on:
   push:
     branches:
@@ -9,14 +9,14 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Cache Dependencies
+      - name: Cache dependencies
+        id: cache
         uses: actions/cache@v3
-        id: cache-check
         with:
           path: node_modules
-          key: "deps-node-modules-${{hashFiles('**/package-lock.json')}}"
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        if: steps.cache-check.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Lint code
         run: npm run lint
@@ -25,20 +25,20 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Cache Dependencies
+      - name: Cache dependencies
+        id: cache
         uses: actions/cache@v3
-        id: cache-check
         with:
           path: node_modules
-          key: "deps-node-modules-${{hashFiles('**/package-lock.json')}}"
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        if: steps.cache-check.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Test code
-        id: TestCode
+        id: run-tests
         run: npm run test
       - name: Upload test report
-        if: failure() && steps.TestCode.outcome == 'failure'
+        if: failure() && steps.run-tests.outcome == 'failure'
         uses: actions/upload-artifact@v3
         with:
           name: test-report
@@ -46,52 +46,37 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-    outputs:
-      script-file: ${{steps.Publish.outputs.test}}
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Cache Dependencies
+      - name: Cache dependencies
+        id: cache
         uses: actions/cache@v3
-        id: cache-check
         with:
           path: node_modules
-          key: "deps-node-modules-${{hashFiles('**/package-lock.json')}}"
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        if: steps.cache-check.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Build website
         run: npm run build
-      - name: Publish JS filename
-        id: Publish 
-        run: find dist/assets/*.js -type f -execdir echo 'test={}' >> $GITHUB_OUTPUT ';'
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: dist-files
-          path: |
-            dist
-            package.json
+          path: dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    steps: 
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
       - name: Get build artifacts
         uses: actions/download-artifact@v3
         with:
           name: dist-files
+          path: ./dist
       - name: Output contents
-        run: echo "${{needs.build.outputs.script-file}}"
-      - name: Output content
-        run: ls 
-      - name: Deploy
+        run: ls
+      - name: Deploy site
         run: echo "Deploying..."
-  report:
-    needs: [lint, deploy]
-    if: failure()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Output info
-        run: |
-          echo "Something went wrong" 
-          echo "${{ toJson(github) }}"
